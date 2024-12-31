@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>WSL 2.0 CUda Dockere for ML Training</title>
+      <style>
+         html { color-scheme: light dark; }
+         body { width: 35em; margin: 0 auto;
+         font-family: Tahoma, Verdana, Arial, sans-serif; }
+      </style>
+   </head>
+   <body>
+      <h1 id="wsl-2">WSL 2</h1>
+      <pre><code>wsl <span class="hljs-comment">--install</span>
+wsl <span class="hljs-comment">--set-default-version 2</span>
+wsl <span class="hljs-comment">--update</span>
+wsl <span class="hljs-comment">--install -d Ubuntu-24.04</span>
+</code></pre>
+      <h1 id="install-docker">Install docker</h1>
+      <pre><code>sudo apt update
+sudo apt install docker.io
+sudo groupadd docker
+sudo usermod -aG docker $<span class="hljs-keyword">USER</span>
+<span class="hljs-title">newgrp</span> docker
+</code></pre>
+      <h1 id="install-cuda-on-wsl">Install CUDA on WSL</h1>
+      <pre><code>wget https:<span class="hljs-comment">//developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb</span>
+sudo dpkg -<span class="hljs-selector-tag">i</span> cuda-keyring_1.<span class="hljs-number">1</span>-<span class="hljs-number">1</span>_all<span class="hljs-selector-class">.deb</span>
+sudo apt update
+sudo apt install -y cuda-toolkit
+</code></pre>
+      <h1 id="install-nvidia-container-toolkit">Install Nvidia Container Toolkit</h1>
+      <pre><code>curl -fsSL https:<span class="hljs-regexp">//</span>nvidia.github.io<span class="hljs-regexp">/libnvidia-container/g</span>pgkey | sudo gpg --dearmor -o <span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/keyrings/</span>nvidia-container-toolkit-keyring.gpg \
+  &amp;&amp; curl -s -L https:<span class="hljs-regexp">//</span>nvidia.github.io<span class="hljs-regexp">/libnvidia-container/</span>stable<span class="hljs-regexp">/deb/</span>nvidia-container-toolkit.list | \
+    sed <span class="hljs-string">'s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g'</span> | \
+    sudo tee <span class="hljs-regexp">/etc/</span>apt<span class="hljs-regexp">/sources.list.d/</span>nvidia-container-toolkit.list
+sudo apt update
+sudo apt install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+</code></pre>
+      <h1 id="verify-docker-with-cuda">Verify docker with Cuda</h1>
+      <pre><code>docker run --rm -it --gpus <span class="hljs-keyword">all</span> nvidia/cud<span class="hljs-variable">a:12</span>.<span class="hljs-number">4.1</span>-<span class="hljs-keyword">runtime</span>-ubuntu20.<span class="hljs-number">04</span> nvidia-smi
+</code></pre>
+   </body>
+</html>
