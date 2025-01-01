@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Esxi</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="esxi">Esxi</h1>
+<h2 id="check-all-the-disk-info">Check all the disk info</h2>
+<p><code>ls /vmfs/devices/disks</code></p>
+<pre><code>t10.ATA_____Fanxiang_S100_512GB_____________________AA000000000000012161
+t10.ATA_____Fanxiang_S100_512GB_____________________AA000000000000012161:1
+t10.ATA_____Fanxiang_S100_512GB_____________________AA000000000000012161:5
+t10.ATA_____Fanxiang_S100_512GB_____________________AA000000000000012161:6
+t10.ATA_____Fanxiang_S100_512GB_____________________AA000000000000012161:7
+t10.ATA_____Fanxiang_S100_512GB_____________________AA000000000000012161:8
+t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255
+t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255:1
+t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255:2
+t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255:3
+t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255:4
+vml.0100000000202020202057442d5743415a4145353637323535574443205744
+vml.0100000000202020202057442d5743415a4145353637323535574443205744:1
+vml.0100000000202020202057442d5743415a4145353637323535574443205744:2
+vml.0100000000202020202057442d5743415a4145353637323535574443205744:3
+vml.0100000000202020202057442d5743415a4145353637323535574443205744:4
+vml.0100000000414130303030303030303030303030313231363146616e786961
+vml.0100000000414130303030303030303030303030313231363146616e786961:1
+vml.0100000000414130303030303030303030303030313231363146616e786961:5
+vml.0100000000414130303030303030303030303030313231363146616e786961:6
+vml.0100000000414130303030303030303030303030313231363146616e786961:7
+vml.0100000000414130303030303030303030303030313231363146616e786961:8
+</code></pre>
+<h2 id="get-partition-table">Get partition table</h2>
+<p><code>cd /vmfs/devices/disks</code></p>
+<pre><code>partedUtil getptbl t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255
+</code></pre>
+<pre><code>gpt
+243201 255 63 3907029168
+1 2048 206847 C12A7328F81F11D2BA4B00A0C93EC93B systemPartition 128
+2 206848 239615 E3C9E3160B5C4DB8817DF92DF00215AE microsoftRsvd 0
+3 239616 3905941168 EBD0A0A2B9E5443387C068B6B72699C7 linuxNative 0
+4 3905941504 3907026943 DE94BBA406D14D40A16ABFD50179D6AC unknown 0
+</code></pre>
+<h2 id="delete-partitions">Delete partitions</h2>
+<pre><code>partedUtil delete t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255 1
+partedUtil delete t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255 2
+partedUtil delete t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255 3
+partedUtil delete t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255 4
+</code></pre>
+<p>Then check again</p>
+<pre><code>partedUtil getptbl t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255
+</code></pre>
+<pre><code>gpt
+243201 255 63 3907029168
+</code></pre>
+<h1 id="raw-device-mapping-for-vm">Raw Device Mapping for VM</h1>
+<ol>
+<li>
+<p>ESXi UI—&gt; Storage—&gt; Devices, copy the full path of the target disk (which hasn’t inserted to any storage yet). For example,<br>
+<code>/vmfs/devices/disks/t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255</code></p>
+</li>
+<li>
+<p>Then ssh into ESXi, and go to the datastore.  For example, the path of an existing datastore (i.e., datastore1) will be <code>/vmfs/volumes/datastore1/</code></p>
+</li>
+<li>
+<p>Create a disk image inside this datastore</p>
+<pre><code>vmkfstools -z /vmfs/devices/disks/t10.ATA_____WDC_WD20EARX2D00PASB0_________________________WD2DWCAZAE567255 /vmfs/volumes/datastore1/rawdevicemapping/wd2tb.vmdk
+</code></pre>
+</li>
+<li>
+<p>Finally, add this disk to the target VM</p>
+</li>
+</ol>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debian</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="debian-setup">Debian Setup</h1>
+<h2 id="debian-sudo-setup">Debian Sudo setup</h2>
+<pre><code>su
+apt install sudo
+adduser haitao sudo
+reboot
+</code></pre>
+<h2 id="debian-static-ip">Debian Static IP</h2>
+<p>Check current IP</p>
+<pre><code>ip a s
+</code></pre>
+<p>Edit the config by</p>
+<pre><code>sudo nano /etc/network/interfaces
+</code></pre>
+<pre><code>iface ens33 inet static
+address 192.168.50.97
+netmask 255.255.255.0
+gateway 192.168.50.1
+dns-nameservers 192.168.50.1
+</code></pre>
+<p>finally</p>
+<pre><code>sudo systemctl restart networking.service
+</code></pre>
+<h2 id="debian-support-i386-or-other-architecture">Debian Support i386 or other architecture</h2>
+<p>dpkg --add-architecture i386 <a href="https://wiki.debian.org/Multiarch/HOWTO">(Link)</a></p>
+</div>
+</body>
+
+</html>
